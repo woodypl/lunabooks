@@ -25,7 +25,7 @@ def add_invoice(driver, date, number, name, address, postcode, city, nip, vat8gr
     addbutton = driver.find_element_by_xpath("//form//div[contains(@class, 'przyciski')]//a[i[contains(@class, 'fa-plus')]]")
     addbutton.click()
    
-    time.sleep(0.8)
+    time.sleep(1.0)
     driver.find_element_by_xpath("//a[contains(., 'Wprowadź samodzielnie')]").click()
     time.sleep(0.8)
 
@@ -38,10 +38,13 @@ def add_invoice(driver, date, number, name, address, postcode, city, nip, vat8gr
     addrfield.send_keys(address)
     if nip:
         nipfield = driver.find_element_by_xpath("//form//div[label='Prefiks UE, NIP']//input[@type='text' and @maxlength=16]")
+        nipfield.click()
         nipfield.send_keys(nip.group(1))
     codefield = driver.find_element_by_xpath("//form//div[label='Kod pocztowy, Miejscowość']//input[@placeholder='kod pocztowy']")
+    codefield.click()
     codefield.send_keys(postcode)
     cityfield = driver.find_element_by_xpath("//form//div[label='Kod pocztowy, Miejscowość']//input[@placeholder='miejscowość']")
+    cityfield.click()
     cityfield.send_keys(city)
     submit = driver.find_element_by_xpath("//form//a[contains(., 'zatwierdź')]")
     submit.click()
@@ -61,6 +64,7 @@ def add_invoice(driver, date, number, name, address, postcode, city, nip, vat8gr
     time.sleep(1.1)
 
     vat8grossfield = driver.find_element_by_xpath("//form//tr[td='8%']/td/input[@type='text']")
+    vat8grossfield.click()
     vat8grossfield.send_keys(vat8gross)
     
     noreceipt = driver.find_element_by_xpath("//form//div[label='Sprzedaż bezrachunkowa']//input")
@@ -101,11 +105,10 @@ for filename in sorted(os.listdir("invoices")):
     text=f.read()
     f.close()
 
-    details = re.compile('(.* .*)\n(.*)\n([0-9]{2}-[0-9]{3}) (.*)\n').match(text)
-    name = re.compile('(.* .*)\n').match(text).group(1)
-    address = re.compile('.* .*\n(.*)\n').match(text).group(1)
-    postcode = re.compile('.* .*\n.*\n([0-9]{2}-[0-9]{3}) .*\n').match(text)
-    city = re.compile('.* .*\n.*\n[0-9\-].*? (.*)\n').match(text)
+    name = re.compile('^(.*)\n').match(text).group(1)
+    address = re.compile('^.*\n(.*)\n').match(text).group(1)
+    postcode = re.compile('^.*\n.*\n([0-9]{2}-[0-9]{3}) .*\n').match(text)
+    city = re.compile('^.*\n.*\n[0-9\-].*? (.*)\n').match(text)
     postcode = postcode.group(1) if postcode else '00-000'
     city = city.group(1) if city else 'brak'
     nip = re.compile("NIP: ([0-9]+)\nDane do faktury").search(text)
